@@ -1,0 +1,66 @@
+/* Glassmorphic "Save to Blostem" Button */
+
+.blostem-save-btn {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(25, 118, 210, 0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 6px 14px;
+    color: #1976d2;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 10px;
+    margin-right: 10px;
+    vertical-align: middle;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    font-family: 'Google Sans', Roboto, sans-serif;
+}
+
+.blostem-save-btn:hover {
+    background: rgba(25, 118, 210, 0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.blostem-save-btn:active {
+    transform: translateY(0);
+}
+
+.blostem-save-btn::before {
+    content: '🌱';
+    margin-right: 6px;
+    font-size: 14px;
+}
+
+/* Success State */
+.blostem-save-btn.success {
+    background: rgba(76, 175, 80, 0.15);
+    color: #2e7d32;
+    border-color: rgba(76, 175, 80, 0.3);
+}
+
+.blostem-save-btn.success::before {
+    content: '✅';
+}
+
+/* Error State */
+.blostem-save-btn.error {
+    background: rgba(244, 67, 54, 0.15);
+    color: #d32f2f;
+}
+
+.blostem-save-btn.error::before {
+    content: '❌';
+}
+
+/* Loading animation for the button */
+.blostem-save-btn.loading {
+    opacity: 0.7;
+    cursor: wait;
+}

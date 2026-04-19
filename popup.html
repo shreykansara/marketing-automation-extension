@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@600;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0a0c14;
+            --bg-card: rgba(20, 24, 38, 0.7);
+            --accent-primary: #6366f1;
+            --accent-success: #10b981;
+            --accent-danger: #ef4444;
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 320px;
+            margin: 0;
+            padding: 12px;
+            background: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+
+        .glass-container {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .header img {
+            width: 32px;
+            height: 32px;
+            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
+        }
+
+        .title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .view-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .status {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .subject-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .subject-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-primary);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .subject-text {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-main);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), #4f46e5);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-muted);
+            margin-top: 8px;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .pulse {
+            width: 6px;
+            height: 6px;
+            background: var(--accent-success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+
+        /* Success/Error States */
+        .btn.success { background: var(--accent-success); }
+        .btn.error { background: var(--accent-danger); }
+        .btn.loading { opacity: 0.8; cursor: wait; }
+
+    </style>
+</head>
+<body>
+    <div class="glass-container">
+        <div class="header">
+            <img src="icons/icon48.png" alt="Blostem">
+            <span class="title">Blostem</span>
+        </div>
+
+        <!-- Default View: No Email Detected -->
+        <div id="default-view" class="view-section">
+            <div class="status">
+                Open a Gmail conversation to instantly ingest communications into your pipeline.
+            </div>
+            <a href="http://localhost:5173/emails" target="_blank" class="btn btn-secondary">
+                Open Dashboard
+            </a>
+        </div>
+
+        <!-- Active View: Email Detected -->
+        <div id="active-view" class="view-section" style="display: none;">
+            <div class="subject-card">
+                <div class="subject-label">Detected Email</div>
+                <div id="email-subject" class="subject-text">...</div>
+            </div>
+            
+            <button id="add-to-db-btn" class="btn btn-primary">
+                Add to Database
+            </button>
+            <div id="status-msg" style="font-size: 0.75rem; text-align: center; margin-top: 10px;"></div>
+        </div>
+
+        <div class="footer">
+            <div class="pulse"></div>
+            Connected to Blostem API
+        </div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
