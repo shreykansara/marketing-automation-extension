@@ -154,6 +154,29 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         } else {
             sendResponse({ isOpen: false });
         }
+    } else if (request.action === "detectCompose") {
+        // Detect Compose Dialog
+        const composeDialog = document.querySelector('[role="dialog"], .M9');
+        if (composeDialog) {
+            // Try to find recipient
+            const toField = composeDialog.querySelector('input[name="to"], [name="to"], [aria-label="To"], [role="combobox"]');
+            let recipient = "";
+            if (toField) {
+                recipient = toField.value || toField.innerText || "";
+                
+                // If it's a chip/collection, find the actual email address
+                if (!recipient || !recipient.includes('@')) {
+                    const toArea = composeDialog.querySelector('.vX, .aoD, [aria-label="To"]');
+                    if (toArea) {
+                        const emailMatch = toArea.innerText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+                        if (emailMatch) recipient = emailMatch[0];
+                    }
+                }
+            }
+            sendResponse({ isComposing: true, recipient: recipient.trim() });
+        } else {
+            sendResponse({ isComposing: false });
+        }
     } else if (request.action === "extractFullData") {
         const data = extractEmailData();
         sendResponse({ data: data });

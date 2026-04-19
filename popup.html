@@ -179,6 +179,19 @@
         .btn.error { background: var(--accent-danger); }
         .btn.loading { opacity: 0.8; cursor: wait; }
 
+        input, textarea {
+            outline: none;
+            font-family: inherit;
+        }
+
+        textarea::-webkit-scrollbar {
+            width: 4px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
     </style>
 </head>
 <body>
@@ -209,6 +222,30 @@
                 Add to Database
             </button>
             <div id="status-msg" style="font-size: 0.75rem; text-align: center; margin-top: 10px;"></div>
+        </div>
+
+        <!-- Compose View: Composing/Replying Detected -->
+        <div id="compose-view" class="view-section" style="display: none;">
+            <div class="subject-card">
+                <div class="subject-label">AI Outreach Assistant</div>
+                <div id="recipient-indicator" class="subject-text" style="color: var(--accent-primary); font-size: 0.8rem;">To: Detectng...</div>
+            </div>
+
+            <button id="generate-ai-btn" class="btn btn-primary">
+                ✨ Generate AI Outreach
+            </button>
+
+            <div id="ai-result-container" style="display: none; margin-top: 16px; border-top: 1px solid var(--glass-border); padding-top: 16px;">
+                <div class="subject-label">Generated Draft</div>
+                <input id="ai-subject" type="text" class="subject-card" style="width: 100%; border: 1px solid var(--accent-primary); background: rgba(99, 102, 241, 0.05); color: white; margin-bottom: 8px; font-family: 'Outfit';">
+                <textarea id="ai-body" rows="6" class="subject-card" style="width: 100%; border: 1px solid var(--accent-primary); background: rgba(99, 102, 241, 0.03); color: white; font-size: 0.85rem; line-height: 1.4; resize: vertical; margin-bottom: 12px;"></textarea>
+                
+                <button id="copy-ai-btn" class="btn btn-secondary" style="font-size: 0.75rem;">
+                    Copy to Clipboard
+                </button>
+            </div>
+            
+            <div id="compose-status" style="font-size: 0.75rem; text-align: center; margin-top: 10px;"></div>
         </div>
 
         <div class="footer">
