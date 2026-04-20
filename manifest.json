@@ -12,6 +12,7 @@
     "https://mail.google.com/*",
     "https://marketing-automation-git-main-shreyhiralkansara-7751s-projects.vercel.app/*",
     "https://blostem-platform.onrender.com/*",
+    "https://marketing-automation-xtd2.onrender.com/*",
     "http://localhost:8000/*"
   ],
   "background": {
@@ -19,9 +20,15 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://mail.google.com/*"],
-      "js": ["content.js"],
-      "css": ["styles.css"]
+      "matches": [
+        "https://mail.google.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "styles.css"
+      ]
     }
   ],
   "action": {
