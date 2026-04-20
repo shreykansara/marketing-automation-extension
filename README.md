@@ -6,7 +6,7 @@ This browser extension allows you to save emails from Gmail directly to your Blo
 1. Open Chrome and navigate to `chrome://extensions/`.
 2. Enable **Developer mode** (toggle in the top right).
 3. Click **Load unpacked**.
-4. Select the directory: `c:\Users\mr_sh\My Drive\LPU\Extension`.
+4. Select the directory: `the **Extension folder** (the root directory where you cloned this repository)`.
 
 ## 2. Usage
 
