@@ -198,59 +198,21 @@
     <div class="glass-container">
         <div class="header">
             <img src="icons/icon48.png" alt="Blostem">
-            <span class="title">Blostem</span>
+            <span class="title">Blostem AI</span>
         </div>
 
-        <!-- Default View: No Email Detected -->
-        <div id="default-view" class="view-section">
+        <div class="view-section">
             <div class="status">
-                Open a Gmail conversation to instantly ingest communications into your pipeline.
+                Your AI Outreach and Intelligence Assistant is active. Access your full pipeline via the dashboard.
             </div>
-            <a href="http://localhost:5173/emails" target="_blank" class="btn btn-secondary">
+            <a href="https://marketing-automation-git-main-shreyhiralkansara-7751s-projects.vercel.app/#/emails" target="_blank" class="btn btn-primary">
                 Open Dashboard
             </a>
         </div>
 
-        <!-- Active View: Email Detected -->
-        <div id="active-view" class="view-section" style="display: none;">
-            <div class="subject-card">
-                <div class="subject-label">Detected Email</div>
-                <div id="email-subject" class="subject-text">...</div>
-            </div>
-            
-            <button id="add-to-db-btn" class="btn btn-primary">
-                Add to Database
-            </button>
-            <div id="status-msg" style="font-size: 0.75rem; text-align: center; margin-top: 10px;"></div>
-        </div>
-
-        <!-- Compose View: Composing/Replying Detected -->
-        <div id="compose-view" class="view-section" style="display: none;">
-            <div class="subject-card">
-                <div class="subject-label">AI Outreach Assistant</div>
-                <div id="recipient-indicator" class="subject-text" style="color: var(--accent-primary); font-size: 0.8rem;">To: Detectng...</div>
-            </div>
-
-            <button id="generate-ai-btn" class="btn btn-primary">
-                ✨ Generate AI Outreach
-            </button>
-
-            <div id="ai-result-container" style="display: none; margin-top: 16px; border-top: 1px solid var(--glass-border); padding-top: 16px;">
-                <div class="subject-label">Generated Draft</div>
-                <input id="ai-subject" type="text" class="subject-card" style="width: 100%; border: 1px solid var(--accent-primary); background: rgba(99, 102, 241, 0.05); color: white; margin-bottom: 8px; font-family: 'Outfit';">
-                <textarea id="ai-body" rows="6" class="subject-card" style="width: 100%; border: 1px solid var(--accent-primary); background: rgba(99, 102, 241, 0.03); color: white; font-size: 0.85rem; line-height: 1.4; resize: vertical; margin-bottom: 12px;"></textarea>
-                
-                <button id="copy-ai-btn" class="btn btn-secondary" style="font-size: 0.75rem;">
-                    Copy to Clipboard
-                </button>
-            </div>
-            
-            <div id="compose-status" style="font-size: 0.75rem; text-align: center; margin-top: 10px;"></div>
-        </div>
-
         <div class="footer">
             <div class="pulse"></div>
-            Connected to Blostem API
+            Intelligence Engine Active
         </div>
     </div>
     <script src="popup.js"></script>

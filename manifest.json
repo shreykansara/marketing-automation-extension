@@ -10,6 +10,8 @@
   ],
   "host_permissions": [
     "https://mail.google.com/*",
+    "https://marketing-automation-xtd2.onrender.com/*",
+    "https://blostem-platform.onrender.com/*",
     "http://localhost:8000/*"
   ],
   "background": {
