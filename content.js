@@ -4,6 +4,7 @@
  * Configuration for Gmail selectors
  */
 const CONFIG = {
+    apiBase: "http://localhost:8000",
     selectors: {
         subject: 'h2.hP',
         body: '.adn.ads .gs',
@@ -13,40 +14,73 @@ const CONFIG = {
         composeWindow: '[role="dialog"], .M9, [aria-label="Compose"]',
         composeToolbar: '.btC', // Bottom toolbar in compose
         composeSubject: 'input[name="subjectbox"]',
-        composeBody: 'div[aria-label="Message Body"], div[role="textbox"]'
+        composeBody: 'div[aria-label="Message Body"], div[role="textbox"]',
+        toArea: '[aria-label="To"], .aoD, .vP, input[name="to"]',
+        sendButton: '.T-I.J-J5-Ji.aoO.v7.T-I-atl.L3',
+        sendDropdown: '.T-I.J-J5-Ji.n7.T-I-ax7.L3'
     }
 };
 
+// --- State ---
+const STATE = {
+    companies: [],
+    lastFetch: 0,
+    isFetching: false
+};
+
+async function fetchCompanies() {
+    if (STATE.companies.length > 0 && (Date.now() - STATE.lastFetch < 300000)) {
+        return STATE.companies;
+    }
+    if (STATE.isFetching) return [];
+    
+    STATE.isFetching = true;
+    try {
+        const resp = await fetch(`${CONFIG.apiBase}/api/companies`);
+        if (resp.ok) {
+            STATE.companies = await resp.json();
+            STATE.lastFetch = Date.now();
+        }
+    } catch (e) {
+        console.error("Blostem: Fetch companies failed", e);
+    } finally {
+        STATE.isFetching = false;
+    }
+    return STATE.companies;
+}
+
 // --- Utilities ---
 
-/**
- * Robustly extracts the recipient email from a compose window
- */
 function extractRecipient(composeDialog) {
-    let recipient = "";
-    const toArea = (composeDialog || document).querySelector('[aria-label="To"], .aoD, .vP, input[name="to"]');
+    if (!composeDialog) return "";
 
-    if (toArea) {
-        // 1. Check for email attributes (chips)
-        const emailEl = toArea.querySelector('[email]');
-        if (emailEl) return emailEl.getAttribute('email');
+    // Target the specific Gmail "To" area containers
+    const toArea = composeDialog.querySelector(CONFIG.selectors.toArea);
+    if (!toArea) return "";
 
-        // 2. Check for text matches
-        const text = toArea.innerText || toArea.value || "";
-        const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-        if (emailMatch) return emailMatch[0];
+    // 1. Check for email attributes on "chips" (most reliable for resolved contacts)
+    const emailEl = toArea.querySelector('[email]');
+    if (emailEl) return emailEl.getAttribute('email').trim();
 
-        // 3. Check all inputs
-        const inputs = toArea.querySelectorAll('input');
-        for (let input of inputs) {
-            if (input.value && input.value.includes('@')) return input.value;
-        }
+    // 2. Check for the PeopleKit input field (where user types before hitting Enter)
+    const peopleKitInput = toArea.querySelector('input[peoplekit-id], input[aria-label*="To recipients"]');
+    if (peopleKitInput && peopleKitInput.value && peopleKitInput.value.includes('@')) {
+        const match = peopleKitInput.value.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+        if (match) return match[0].trim();
     }
 
-    // Global fallback for this dialog
-    if (composeDialog) {
-        const globalMatch = composeDialog.innerText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-        if (globalMatch) return globalMatch[0];
+    // 3. Fallback to raw text matching in the entire area
+    const text = toArea.innerText || toArea.value || "";
+    const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+    if (emailMatch) return emailMatch[0].trim();
+
+    // 4. Final attempt: check any input in this row
+    const fallbackInputs = toArea.querySelectorAll('input');
+    for (let input of fallbackInputs) {
+        if (input.value && input.value.includes('@')) {
+            const match = input.value.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+            if (match) return match[0].trim();
+        }
     }
 
     return "";
@@ -68,7 +102,15 @@ function injectDraft(composeDialog, subject, body) {
     const bodyBox = composeDialog.querySelector(CONFIG.selectors.composeBody);
     if (bodyBox) {
         bodyBox.focus();
-        bodyBox.innerText = body;
+        
+        // Double-tap clearing: ensure both innerText and innerHTML are cleared
+        // This is necessary because some Gmail versions react differently to innerHTML = ''
+        bodyBox.innerText = "";
+        bodyBox.innerHTML = "";
+        
+        // Insert with execCommand to keep Gmail's internal React/Redux state synced
+        document.execCommand('insertHTML', false, body.replace(/\n/g, '<br>'));
+        
         bodyBox.dispatchEvent(new Event('input', { bubbles: true }));
     }
 }
@@ -86,7 +128,7 @@ function injectOutreachButton() {
         if (!toolbar || dialog.querySelector('.blostem-ai-btn')) return;
 
         const btn = document.createElement('button');
-        btn.innerHTML = '✨ AI Outreach';
+        btn.innerHTML = 'Generate AI Draft';
         btn.className = 'blostem-ai-btn';
         btn.type = 'button';
         btn.title = 'Generate AI Outreach with Blostem';
@@ -96,21 +138,21 @@ function injectOutreachButton() {
             const recipient = extractRecipient(dialog);
 
             if (!recipient) {
-                btn.innerHTML = '❌ No Recipient';
+                btn.innerHTML = 'No Recipient';
                 btn.classList.add('error');
                 setTimeout(() => {
-                    btn.innerHTML = '✨ AI Outreach';
+                    btn.innerHTML = 'Generate AI Draft';
                     btn.classList.remove('error');
                 }, 3000);
                 return;
             }
 
-            btn.innerHTML = '⏳ Generating...';
+            btn.innerHTML = 'Generating...';
             btn.classList.add('loading');
             btn.disabled = true;
 
             try {
-                const response = await fetch("https://marketing-automation-xtd2.onrender.com/api/emails/generate", {
+                const response = await fetch(`${CONFIG.apiBase}/api/emails/generate`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ recipient_email: recipient })
@@ -120,7 +162,13 @@ function injectOutreachButton() {
 
                 if (response.ok && data.status === "success") {
                     injectDraft(dialog, data.generated.subject, data.generated.body);
-                    btn.innerHTML = '✅ Generated!';
+                    
+                    // Catch-all for any mode that results in a cold outreach draft
+                    const isCold = data.current_state_detected === 'cold_outreach' || 
+                                   data.current_state_detected === 'internal_no_pipeline' ||
+                                   data.current_state_detected.includes('missing_');
+                                   
+                    btn.innerHTML = isCold ? 'Cold Draft Generated!' : 'Generated!';
                     btn.classList.add('success');
                 } else {
                     const errorMsg = data.detail || (response.status !== 200 ? `Status ${response.status}` : "Unknown Error");
@@ -128,13 +176,13 @@ function injectOutreachButton() {
                 }
             } catch (err) {
                 console.error("Blostem AI Outreach Error:", err);
-                btn.innerHTML = '❌ ' + (err.message.includes('Status') ? err.message : 'Error');
+                btn.innerHTML = 'Error';
                 btn.classList.add('error');
             } finally {
                 btn.classList.remove('loading');
                 btn.disabled = false;
                 setTimeout(() => {
-                    btn.innerHTML = '✨ AI Outreach';
+                    btn.innerHTML = 'Generate AI Draft';
                     btn.classList.remove('success', 'error');
                 }, 4000);
             }
@@ -142,6 +190,238 @@ function injectOutreachButton() {
 
         // Insert at the beginning of the toolbar
         toolbar.insertBefore(btn, toolbar.firstChild);
+    });
+}
+
+/**
+ * Injects the Company Picker into Gmail Compose windows
+ */
+async function injectCompanyPicker() {
+    const composeWindows = document.querySelectorAll(CONFIG.selectors.composeWindow);
+
+    composeWindows.forEach(async dialog => {
+        const toArea = dialog.querySelector(CONFIG.selectors.toArea);
+        if (!toArea || dialog.querySelector('.blostem-picker-trigger')) return;
+
+        const trigger = document.createElement('div');
+        trigger.className = 'blostem-picker-trigger';
+        trigger.innerHTML = 'Find Companies';
+        trigger.title = 'Pick Company/Email from Blostem';
+
+        trigger.onclick = async (e) => {
+            e.stopPropagation();
+            const rect = trigger.getBoundingClientRect();
+            showPickerOverlay(rect.left, rect.bottom + 5, dialog);
+        };
+
+        // Find a clean insertion point in the "To" row
+        const ccBccContainer = toArea.parentElement.querySelector('.aA6');
+        if (ccBccContainer) {
+            ccBccContainer.parentElement.insertBefore(trigger, ccBccContainer);
+        } else {
+            toArea.parentElement.appendChild(trigger);
+        }
+    });
+}
+
+function showPickerOverlay(x, y, dialog) {
+    // Remove existing
+    const existing = document.querySelector('.blostem-picker-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'blostem-picker-overlay';
+    overlay.style.left = `${x}px`;
+    overlay.style.top = `${y}px`;
+
+    let selectedCompany = null;
+
+    const render = async (view = 'companies', filter = '') => {
+        overlay.innerHTML = '';
+        
+        const header = document.createElement('div');
+        header.className = 'blostem-picker-header';
+        
+        if (view === 'emails' && selectedCompany) {
+            const back = document.createElement('div');
+            back.className = 'blostem-picker-back';
+            back.innerHTML = '← Back';
+            back.onclick = () => render('companies');
+            header.appendChild(back);
+            
+            const title = document.createElement('h4');
+            title.innerText = selectedCompany.name;
+            header.appendChild(title);
+        } else {
+            const title = document.createElement('h4');
+            title.innerText = 'Blostem Companies';
+            header.appendChild(title);
+        }
+        overlay.appendChild(header);
+
+        if (view === 'companies') {
+            const searchBox = document.createElement('div');
+            searchBox.className = 'blostem-picker-search';
+            const input = document.createElement('input');
+            input.placeholder = 'Search companies...';
+            input.value = filter;
+            input.oninput = (e) => render('companies', e.target.value);
+            searchBox.appendChild(input);
+            overlay.appendChild(searchBox);
+            setTimeout(() => input.focus(), 100);
+
+            const list = document.createElement('div');
+            list.className = 'blostem-picker-list';
+            
+            const companies = await fetchCompanies();
+            const filtered = companies.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
+
+            filtered.forEach(comp => {
+                const item = document.createElement('div');
+                item.className = 'blostem-picker-item';
+                item.innerHTML = `<div>${comp.name}</div><div class="item-sub">${comp.emails?.length || 0} emails</div>`;
+                item.onclick = () => {
+                    selectedCompany = comp;
+                    render('emails');
+                };
+                list.appendChild(item);
+            });
+            overlay.appendChild(list);
+        } else {
+            const list = document.createElement('div');
+            list.className = 'blostem-picker-list';
+            
+            selectedCompany.emails.forEach(email => {
+                const item = document.createElement('div');
+                item.className = 'blostem-picker-item';
+                item.innerHTML = `<div>${email}</div>`;
+                item.onclick = () => {
+                    populateToField(dialog, email);
+                    overlay.remove();
+                };
+                list.appendChild(item);
+            });
+            overlay.appendChild(list);
+        }
+    };
+
+    render();
+    document.body.appendChild(overlay);
+
+    // Close on outside click
+    const closer = (e) => {
+        if (!overlay.contains(e.target)) {
+            overlay.remove();
+            document.removeEventListener('mousedown', closer);
+        }
+    };
+    document.addEventListener('mousedown', closer);
+}
+
+function populateToField(dialog, email) {
+    // 1. Target the specific PeopleKit input field seen in Gmail's "To" row
+    const selectors = [
+        'input[aria-label*="To recipients"]',
+        'input[peoplekit-id]',
+        'div[aria-label="To"] input',
+        'input[name="to"]',
+        'div[role="textbox"][aria-label*="To"]'
+    ];
+
+    let toInput = null;
+    for (const selector of selectors) {
+        toInput = dialog.querySelector(selector);
+        if (toInput) break;
+    }
+
+    if (toInput) {
+        console.log("Blostem: Found 'To' field, populating...");
+        toInput.focus();
+
+        // For standard inputs
+        if (toInput.tagName === 'INPUT') {
+            toInput.value = email;
+            toInput.dispatchEvent(new Event('input', { bubbles: true }));
+            toInput.dispatchEvent(new Event('change', { bubbles: true }));
+            
+            // Simulating 'Enter' is critical for Gmail to convert text to a "chip"
+            const enterEvent = new KeyboardEvent('keydown', {
+                bubbles: true,
+                cancelable: true,
+                key: 'Enter',
+                code: 'Enter',
+                keyCode: 13
+            });
+            toInput.dispatchEvent(enterEvent);
+        } 
+        // Fallback for contenteditable fields
+        else {
+            document.execCommand('insertText', false, email);
+            toInput.dispatchEvent(new KeyboardEvent('keydown', { 
+                bubbles: true, 
+                cancelable: true, 
+                key: 'Enter', 
+                keyCode: 13 
+            }));
+        }
+    } else {
+        console.error("Blostem: Could not locate the 'To' field in the compose window.");
+    }
+}
+
+/**
+ * Injects a standalone "Save & Send" button in the Compose toolbar
+ */
+function injectSaveSendButton() {
+    const composeWindows = document.querySelectorAll(CONFIG.selectors.composeWindow);
+
+    composeWindows.forEach(dialog => {
+        const toolbar = dialog.querySelector(CONFIG.selectors.composeToolbar);
+        const nativeSend = dialog.querySelector(CONFIG.selectors.sendButton);
+        
+        if (!toolbar || !nativeSend || dialog.querySelector('.blostem-send-standalone')) return;
+
+        const btn = document.createElement('button');
+        btn.innerHTML = 'Save & Send';
+        btn.className = 'blostem-send-standalone';
+        btn.type = 'button';
+        btn.title = 'Save to Blostem and Send email';
+
+        btn.onclick = async (e) => {
+            e.preventDefault();
+            if (btn.disabled) return;
+            
+            btn.disabled = true;
+            btn.innerHTML = 'Saving...';
+            btn.classList.add('loading');
+
+            const data = {
+                subject: dialog.querySelector(CONFIG.selectors.composeSubject)?.value || "No Subject",
+                body: dialog.querySelector(CONFIG.selectors.composeBody)?.innerText || "",
+                receiver: extractRecipient(dialog),
+                sender: "me-integration@blostem.io",
+                timestamp: new Date().toISOString()
+            };
+
+            chrome.runtime.sendMessage({ action: "saveEmail", data: data }, (response) => {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+                btn.innerHTML = 'Save & Send';
+                
+                if (response && response.status === "success") {
+                    nativeSend.click();
+                } else {
+                    console.error("Blostem: Save failed, still sending as fallback", response?.message);
+                    nativeSend.click();
+                }
+            });
+        };
+
+        // Insert near the native send button but as a standalone sibling
+        const nativeSendParent = nativeSend.parentElement;
+        if (nativeSendParent) {
+            nativeSendParent.parentElement.insertBefore(btn, nativeSendParent);
+        }
     });
 }
 
@@ -235,6 +515,8 @@ function injectSaveButton() {
 
 const observer = new MutationObserver(() => {
     injectOutreachButton();
+    injectCompanyPicker();
+    injectSaveSendButton();
     if (location.href.includes('#inbox/') || location.href.includes('#search/') || location.href.includes('#all/')) {
         injectSaveButton();
     }
@@ -245,6 +527,8 @@ observer.observe(document.body, { childList: true, subtree: true });
 // Initial checks for slow loads
 setInterval(() => {
     injectOutreachButton();
+    injectCompanyPicker();
+    injectSaveSendButton();
 }, 2000);
 
 console.log("Blostem AI Integration Active.");

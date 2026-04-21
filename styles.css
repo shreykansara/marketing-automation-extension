@@ -1,92 +1,46 @@
-/* Glassmorphic "Save to Blostem" Button */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@300;400;600;800;900&display=swap');
 
-.blostem-save-btn {
-    display: inline-flex;
-    align-items: center;
-    background: rgba(25, 118, 210, 0.15);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    padding: 6px 14px;
-    color: #1976d2;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    margin-left: 10px;
-    margin-right: 10px;
-    vertical-align: middle;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    font-family: 'Google Sans', Roboto, sans-serif;
+/* Blostem Extension - Premium Material 3 Theme */
+
+:root {
+    --blostem-primary: #6366f1;
+    --blostem-primary-hover: #4f46e5;
+    --blostem-accent: #8b5cf6;
+    --blostem-success: #10b981;
+    --blostem-error: #ef4444;
+    --blostem-bg-dark: #0a0c14;
+    --blostem-bg-glass: rgba(10, 12, 20, 0.95);
+    --blostem-border-glass: rgba(255, 255, 255, 0.1);
+    --blostem-text-main: #f8fafc;
+    --blostem-text-muted: #94a3b8;
+    --blostem-font-sans: 'Inter', 'Google Sans', sans-serif;
+    --blostem-font-display: 'Outfit', sans-serif;
 }
 
-.blostem-save-btn:hover {
-    background: rgba(25, 118, 210, 0.25);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    border-color: rgba(255, 255, 255, 0.4);
-}
-
-.blostem-save-btn:active {
-    transform: translateY(0);
-}
-
-.blostem-save-btn::before {
-    content: '🌱';
-    margin-right: 6px;
-    font-size: 14px;
-}
-
-/* Success State */
-.blostem-save-btn.success {
-    background: rgba(76, 175, 80, 0.15);
-    color: #2e7d32;
-    border-color: rgba(76, 175, 80, 0.3);
-}
-
-.blostem-save-btn.success::before {
-    content: '✅';
-}
-
-/* Error State */
-.blostem-save-btn.error {
-    background: rgba(244, 67, 54, 0.15);
-    color: #d32f2f;
-}
-
-.blostem-save-btn.error::before {
-    content: '❌';
-}
-
-/* Loading animation for the button */
-.blostem-save-btn.loading, .blostem-ai-btn.loading {
-    opacity: 0.7;
-    cursor: wait;
-}
-
-/* AI Outreach Button */
+/* --- Base Buttons --- */
 .blostem-ai-btn {
     display: inline-flex;
     align-items: center;
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
-    border: none;
-    border-radius: 20px;
-    padding: 6px 16px;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--blostem-primary), var(--blostem-accent));
+    border-radius: 12px;
+    padding: 8px 18px;
     color: white;
     font-size: 13px;
     font-weight: 600;
+    font-family: var(--blostem-font-sans);
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    margin-left: 10px;
-    vertical-align: middle;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-    font-family: 'Google Sans', Roboto, sans-serif;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    margin: 0 10px;
+    position: relative;
+    overflow: hidden;
 }
 
 .blostem-ai-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
     filter: brightness(1.1);
 }
 
@@ -94,18 +48,201 @@
     transform: translateY(0);
 }
 
-.blostem-ai-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
+.blostem-send-standalone {
+    background: transparent;
+    color: var(--blostem-primary);
+    border: 2px solid var(--blostem-primary);
+    border-radius: 12px;
+    padding: 7px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: var(--blostem-font-sans);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-right: 12px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
 }
 
-.blostem-ai-btn.success {
-    background: #10b981;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+.blostem-send-standalone:hover {
+    background: rgba(99, 102, 241, 0.08);
+    border-color: var(--blostem-primary-hover);
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.15);
 }
 
-.blostem-ai-btn.error {
-    background: #ef4444;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+/* --- Find Companies Trigger --- */
+.blostem-picker-trigger {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--blostem-primary);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 10px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: var(--blostem-font-sans);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 8px;
+}
+
+.blostem-picker-trigger:hover {
+    background: rgba(99, 102, 241, 0.2);
+    border-color: var(--blostem-primary);
+}
+
+/* --- Picker Overlay (Premium Glassmorphism) --- */
+.blostem-picker-overlay {
+    position: absolute;
+    z-index: 2147483647;
+    width: 340px;
+    background: var(--blostem-bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--blostem-border-glass);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    font-family: var(--blostem-font-sans);
+    color: var(--blostem-text-main);
+    animation: blostem-slide-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes blostem-slide-up {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.blostem-picker-header {
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--blostem-border-glass);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.blostem-picker-header h4 {
+    margin: 0;
+    font-family: var(--blostem-font-display);
+    font-size: 16px;
+    font-weight: 700;
+    background: linear-gradient(to right, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.blostem-picker-search {
+    padding: 15px 20px;
+}
+
+.blostem-picker-search input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--blostem-border-glass);
+    border-radius: 12px;
+    padding: 10px 15px;
+    color: white;
+    font-size: 13px;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.blostem-picker-search input:focus {
+    border-color: var(--blostem-primary);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.blostem-picker-list {
+    max-height: 350px;
+    overflow-y: auto;
+    padding-bottom: 10px;
+}
+
+.blostem-picker-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.blostem-picker-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+.blostem-picker-item {
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+}
+
+.blostem-picker-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-left-color: var(--blostem-primary);
+}
+
+.blostem-picker-item .item-title {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+
+.blostem-picker-item .item-sub {
+    font-size: 12px;
+    color: var(--blostem-text-muted);
+}
+
+.blostem-picker-back {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--blostem-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.blostem-picker-back:hover {
+    filter: brightness(1.2);
+}
+
+/* --- Save to Blostem (Read Mode) --- */
+.blostem-save-btn {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--blostem-primary);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 20px;
+    padding: 8px 18px;
+    font-weight: 700;
+    font-family: var(--blostem-font-sans);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.blostem-save-btn:hover {
+    background: var(--blostem-primary);
+    color: white;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+/* --- States & Utils --- */
+.loading {
+    opacity: 0.7;
+    cursor: wait !important;
+}
+
+.success { background: var(--blostem-success) !important; color: white !important; }
+.error { background: var(--blostem-error) !important; color: white !important; }
+
+/* Pulse animation for the AI button */
+@keyframes blostem-pulse {
+    0% { box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+    50% { box-shadow: 0 4px 25px rgba(99, 102, 241, 0.5); }
+    100% { box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+}
+
+.animate-pulse {
+    animation: blostem-pulse 2s infinite;
 }
