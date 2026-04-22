@@ -4,7 +4,7 @@
  * Configuration for Gmail selectors
  */
 const CONFIG = {
-    apiBase: "http://localhost:8000",
+    apiBase: "https://marketing-automation-xtd2.onrender.com",
     selectors: {
         subject: 'h2.hP',
         body: '.adn.ads .gs',
