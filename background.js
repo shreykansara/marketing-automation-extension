@@ -18,7 +18,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return;
       }
 
-      fetch("https://marketing-automation-xtd2.onrender.com/api/emails/", {
+      fetch("http://localhost:8000/api/emails/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

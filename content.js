@@ -4,7 +4,7 @@
  * Configuration for Gmail selectors
  */
 const CONFIG = {
-    apiBase: "https://marketing-automation-xtd2.onrender.com",
+    apiBase: "http://localhost:8000",
     selectors: {
         subject: 'h2.hP',
         body: '.adn.ads .gs',
@@ -58,36 +58,48 @@ async function fetchCompanies() {
 
 function extractRecipient(composeDialog) {
     if (!composeDialog) return "";
+    console.log("Blostem: Attempting to extract recipient...");
 
     // Target the specific Gmail "To" area containers
     const toArea = composeDialog.querySelector(CONFIG.selectors.toArea);
-    if (!toArea) return "";
-
-    // 1. Check for email attributes on "chips" (most reliable for resolved contacts)
-    const emailEl = toArea.querySelector('[email]');
-    if (emailEl) return emailEl.getAttribute('email').trim();
-
-    // 2. Check for the PeopleKit input field (where user types before hitting Enter)
-    const peopleKitInput = toArea.querySelector('input[peoplekit-id], input[aria-label*="To recipients"]');
-    if (peopleKitInput && peopleKitInput.value && peopleKitInput.value.includes('@')) {
-        const match = peopleKitInput.value.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-        if (match) return match[0].trim();
+    if (!toArea) {
+        console.warn("Blostem: To area not found");
+        return "";
     }
 
-    // 3. Fallback to raw text matching in the entire area
-    const text = toArea.innerText || toArea.value || "";
-    const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-    if (emailMatch) return emailMatch[0].trim();
-
-    // 4. Final attempt: check any input in this row
-    const fallbackInputs = toArea.querySelectorAll('input');
-    for (let input of fallbackInputs) {
-        if (input.value && input.value.includes('@')) {
-            const match = input.value.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
-            if (match) return match[0].trim();
+    // 1. Check for chips/email elements using every known Gmail attribute
+    const emailEls = toArea.querySelectorAll('[email], [data-hovercard-id], .vP, .vN');
+    for (let el of emailEls) {
+        const email = el.getAttribute('email') || el.getAttribute('data-hovercard-id');
+        if (email && email.includes('@')) {
+            console.log("Blostem: Found recipient in chip:", email);
+            return email.trim();
+        }
+        // Check aria-label for "Name <email@domain.com>"
+        const aria = el.getAttribute('aria-label');
+        if (aria && aria.includes('<')) {
+            const match = aria.match(/<([^>]+)>/);
+            if (match) {
+                console.log("Blostem: Found recipient in aria-label:", match[1]);
+                return match[1].trim();
+            }
         }
     }
 
+    // 2. Check for the PeopleKit input field (where user types)
+    const inputs = toArea.querySelectorAll('input, [role="combobox"], [contenteditable="true"]');
+    for (let input of inputs) {
+        const val = input.value || input.innerText || "";
+        if (val.includes('@')) {
+            const match = val.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+            if (match) {
+                console.log("Blostem: Found recipient in input/textbox:", match[0]);
+                return match[0].trim();
+            }
+        }
+    }
+
+    console.warn("Blostem: No recipient found in To area");
     return "";
 }
 
@@ -569,7 +581,7 @@ function injectLoginPrompt() {
     prompt.innerHTML = `
         <span>Blostem: <a href="#" style="color: inherit; text-decoration: underline;">Open extension to login</a></span>
     `;
-    
+
     // Style the prompt for the header area
     Object.assign(prompt.style, {
         background: 'rgba(99, 102, 241, 0.08)',
