@@ -4,7 +4,7 @@
  * Configuration for Gmail selectors
  */
 const CONFIG = {
-    apiBase: "http://localhost:8000",
+    apiBase: "https://marketing-automation-xtd2.onrender.com",
     selectors: {
         subject: 'h2.hP',
         body: '.adn.ads .gs',
@@ -33,10 +33,15 @@ async function fetchCompanies() {
         return STATE.companies;
     }
     if (STATE.isFetching) return [];
-    
+
     STATE.isFetching = true;
     try {
-        const resp = await fetch(`${CONFIG.apiBase}/api/companies`);
+        const { token } = await chrome.storage.local.get("token");
+        if (!token) return [];
+
+        const resp = await fetch(`${CONFIG.apiBase}/api/companies/`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
         if (resp.ok) {
             STATE.companies = await resp.json();
             STATE.lastFetch = Date.now();
@@ -102,15 +107,15 @@ function injectDraft(composeDialog, subject, body) {
     const bodyBox = composeDialog.querySelector(CONFIG.selectors.composeBody);
     if (bodyBox) {
         bodyBox.focus();
-        
+
         // Double-tap clearing: ensure both innerText and innerHTML are cleared
         // This is necessary because some Gmail versions react differently to innerHTML = ''
         bodyBox.innerText = "";
         bodyBox.innerHTML = "";
-        
+
         // Insert with execCommand to keep Gmail's internal React/Redux state synced
         document.execCommand('insertHTML', false, body.replace(/\n/g, '<br>'));
-        
+
         bodyBox.dispatchEvent(new Event('input', { bubbles: true }));
     }
 }
@@ -152,9 +157,17 @@ function injectOutreachButton() {
             btn.disabled = true;
 
             try {
+                const { token } = await chrome.storage.local.get("token");
+                if (!token) {
+                    throw new Error("Login via extension first");
+                }
+
                 const response = await fetch(`${CONFIG.apiBase}/api/emails/generate`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
                     body: JSON.stringify({ recipient_email: recipient })
                 });
 
@@ -162,12 +175,12 @@ function injectOutreachButton() {
 
                 if (response.ok && data.status === "success") {
                     injectDraft(dialog, data.generated.subject, data.generated.body);
-                    
+
                     // Catch-all for any mode that results in a cold outreach draft
-                    const isCold = data.current_state_detected === 'cold_outreach' || 
-                                   data.current_state_detected === 'internal_no_pipeline' ||
-                                   data.current_state_detected.includes('missing_');
-                                   
+                    const isCold = data.current_state_detected === 'cold_outreach' ||
+                        data.current_state_detected === 'internal_no_pipeline' ||
+                        data.current_state_detected.includes('missing_');
+
                     btn.innerHTML = isCold ? 'Cold Draft Generated!' : 'Generated!';
                     btn.classList.add('success');
                 } else {
@@ -238,17 +251,17 @@ function showPickerOverlay(x, y, dialog) {
 
     const render = async (view = 'companies', filter = '') => {
         overlay.innerHTML = '';
-        
+
         const header = document.createElement('div');
         header.className = 'blostem-picker-header';
-        
+
         if (view === 'emails' && selectedCompany) {
             const back = document.createElement('div');
             back.className = 'blostem-picker-back';
             back.innerHTML = '← Back';
             back.onclick = () => render('companies');
             header.appendChild(back);
-            
+
             const title = document.createElement('h4');
             title.innerText = selectedCompany.name;
             header.appendChild(title);
@@ -272,7 +285,7 @@ function showPickerOverlay(x, y, dialog) {
 
             const list = document.createElement('div');
             list.className = 'blostem-picker-list';
-            
+
             const companies = await fetchCompanies();
             const filtered = companies.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
 
@@ -290,7 +303,7 @@ function showPickerOverlay(x, y, dialog) {
         } else {
             const list = document.createElement('div');
             list.className = 'blostem-picker-list';
-            
+
             selectedCompany.emails.forEach(email => {
                 const item = document.createElement('div');
                 item.className = 'blostem-picker-item';
@@ -343,7 +356,7 @@ function populateToField(dialog, email) {
             toInput.value = email;
             toInput.dispatchEvent(new Event('input', { bubbles: true }));
             toInput.dispatchEvent(new Event('change', { bubbles: true }));
-            
+
             // Simulating 'Enter' is critical for Gmail to convert text to a "chip"
             const enterEvent = new KeyboardEvent('keydown', {
                 bubbles: true,
@@ -353,15 +366,15 @@ function populateToField(dialog, email) {
                 keyCode: 13
             });
             toInput.dispatchEvent(enterEvent);
-        } 
+        }
         // Fallback for contenteditable fields
         else {
             document.execCommand('insertText', false, email);
-            toInput.dispatchEvent(new KeyboardEvent('keydown', { 
-                bubbles: true, 
-                cancelable: true, 
-                key: 'Enter', 
-                keyCode: 13 
+            toInput.dispatchEvent(new KeyboardEvent('keydown', {
+                bubbles: true,
+                cancelable: true,
+                key: 'Enter',
+                keyCode: 13
             }));
         }
     } else {
@@ -378,7 +391,7 @@ function injectSaveSendButton() {
     composeWindows.forEach(dialog => {
         const toolbar = dialog.querySelector(CONFIG.selectors.composeToolbar);
         const nativeSend = dialog.querySelector(CONFIG.selectors.sendButton);
-        
+
         if (!toolbar || !nativeSend || dialog.querySelector('.blostem-send-standalone')) return;
 
         const btn = document.createElement('button');
@@ -390,7 +403,7 @@ function injectSaveSendButton() {
         btn.onclick = async (e) => {
             e.preventDefault();
             if (btn.disabled) return;
-            
+
             btn.disabled = true;
             btn.innerHTML = 'Saving...';
             btn.classList.add('loading');
@@ -407,7 +420,7 @@ function injectSaveSendButton() {
                 btn.classList.remove('loading');
                 btn.disabled = false;
                 btn.innerHTML = 'Save & Send';
-                
+
                 if (response && response.status === "success") {
                     nativeSend.click();
                 } else {
@@ -511,24 +524,100 @@ function injectSaveButton() {
     subjectLine.parentElement.appendChild(btn);
 }
 
-// --- Main Execution ---
+// --- Auth-Aware Main Execution ---
 
-const observer = new MutationObserver(() => {
+async function checkAuthAndInject() {
+    const { token } = await chrome.storage.local.get("token");
+
+    if (!token) {
+        hideBlostemUI();
+        injectLoginPrompt();
+        return;
+    }
+
+    // Authenticated: Remove prompt and inject UI
+    const prompt = document.getElementById('blostem-login-prompt');
+    if (prompt) prompt.remove();
+
     injectOutreachButton();
     injectCompanyPicker();
     injectSaveSendButton();
     if (location.href.includes('#inbox/') || location.href.includes('#search/') || location.href.includes('#all/')) {
         injectSaveButton();
     }
+}
+
+function hideBlostemUI() {
+    const elements = document.querySelectorAll('.blostem-ai-btn, .blostem-picker-trigger, .blostem-send-standalone, .blostem-save-btn');
+    elements.forEach(el => el.remove());
+}
+
+function injectLoginPrompt() {
+    if (document.getElementById('blostem-login-prompt')) return;
+
+    // Target the specific wrapper for the Gmail search bar
+    const searchWrapper = document.querySelector('.gb_Pe');
+    if (!searchWrapper) return;
+
+    // Force horizontal alignment on the parent container
+    searchWrapper.style.display = 'flex';
+    searchWrapper.style.alignItems = 'center';
+    searchWrapper.style.flexWrap = 'nowrap';
+
+    const prompt = document.createElement('div');
+    prompt.id = 'blostem-login-prompt';
+    prompt.innerHTML = `
+        <span>Blostem: <a href="#" style="color: inherit; text-decoration: underline;">Open extension to login</a></span>
+    `;
+    
+    // Style the prompt for the header area
+    Object.assign(prompt.style, {
+        background: 'rgba(99, 102, 241, 0.08)',
+        border: '1px dashed rgba(99, 102, 241, 0.3)',
+        padding: '4px 10px',
+        marginLeft: '12px',
+        borderRadius: '16px',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '8px',
+        color: '#6366f1',
+        fontSize: '0.75rem',
+        fontWeight: '600',
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+        height: '28px',
+        flexShrink: '0',
+        zIndex: '10',
+        transition: 'all 0.2s ease'
+    });
+
+    prompt.onmouseover = () => {
+        prompt.style.background = 'rgba(99, 102, 241, 0.15)';
+        prompt.style.borderStyle = 'solid';
+    };
+    prompt.onmouseout = () => {
+        prompt.style.background = 'rgba(99, 102, 241, 0.08)';
+        prompt.style.borderStyle = 'dashed';
+    };
+
+    prompt.onclick = (e) => {
+        e.preventDefault();
+        chrome.runtime.sendMessage({ action: "openPopup" });
+    };
+
+    // Append as a sibling to the form inside the wrapper
+    searchWrapper.appendChild(prompt);
+}
+
+const observer = new MutationObserver(() => {
+    checkAuthAndInject();
 });
 
 observer.observe(document.body, { childList: true, subtree: true });
 
 // Initial checks for slow loads
 setInterval(() => {
-    injectOutreachButton();
-    injectCompanyPicker();
-    injectSaveSendButton();
+    checkAuthAndInject();
 }, 2000);
 
-console.log("Blostem AI Integration Active.");
+console.log("Blostem AI Integration Active (Auth-Aware).");

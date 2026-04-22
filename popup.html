@@ -8,7 +8,7 @@
     <style>
         :root {
             --bg-deep: #0a0c14;
-            --bg-card: rgba(20, 24, 38, 0.7);
+            --bg-card: rgba(20, 24, 38, 0.6);
             --accent-primary: #6366f1;
             --accent-success: #10b981;
             --accent-danger: #ef4444;
@@ -17,146 +17,215 @@
             --text-muted: #94a3b8;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            width: 320px;
-            margin: 0;
-            padding: 12px;
+            width: 350px;
             background: var(--bg-deep);
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             overflow: hidden;
+            padding: 16px;
         }
 
-        .glass-container {
+        .auth-card {
             background: var(--bg-card);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            border-radius: 24px;
+            padding: 24px;
+            width: 100%;
         }
 
-        .header {
+        .auth-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo-box {
+            width: 52px;
+            height: 52px;
+            margin: 0 auto 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 10px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
+            justify-content: center;
         }
 
-        .header img {
-            width: 32px;
-            height: 32px;
-            filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.5));
-        }
+        .auth-logo { width: 100%; height: 100%; object-fit: contain; }
 
-        .title {
+        .auth-header h1 {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            background: linear-gradient(to right, #fff, var(--text-muted));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+            color: #fff;
         }
 
-        .view-section {
+        .auth-subtitle {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .auth-alert {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            margin-bottom: 16px;
+        }
+
+        .auth-alert.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .auth-alert.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .auth-form {
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
 
-        .status {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin-bottom: 8px;
+        .input-group {
+            position: relative;
         }
 
-        .subject-card {
-            background: rgba(255, 255, 255, 0.03);
+        .input-group input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 16px;
-        }
-
-        .subject-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--accent-primary);
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-
-        .subject-text {
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            transition: all 0.2s;
             font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-main);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
 
-        .btn {
+        .input-group input:focus {
+            border-color: var(--accent-primary);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* SVG Icons Simulation */
+        .icon-overlay {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            opacity: 0.5;
+        }
+
+        .auth-submit {
+            margin-top: 8px;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            border: none;
-            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--accent-primary), #4f46e5);
-            color: white;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
-
-        .btn-primary:hover {
+        .auth-submit:hover:not(:disabled) {
             transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+            filter: brightness(1.1);
         }
 
-        .btn-primary:disabled {
+        .auth-submit:disabled {
             opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
+            cursor: wait;
         }
 
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            color: var(--text-muted);
-            margin-top: 8px;
-            text-decoration: none;
+        .auth-footer {
+            margin-top: 24px;
+            text-align: center;
         }
 
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-main);
+        .prototype-hint {
+            margin-bottom: 16px;
+            padding: 14px;
+            background: rgba(99, 102, 241, 0.05);
+            border: 1px dashed rgba(99, 102, 241, 0.3);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        .footer {
-            margin-top: 20px;
+        .prototype-hint:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-style: solid;
+        }
+
+        .prototype-hint span {
+            display: block;
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--accent-primary);
+            margin-bottom: 2px;
+        }
+
+        .prototype-hint p {
             font-size: 0.7rem;
             color: var(--text-muted);
+            margin: 0;
+        }
+
+        .btn-text {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-text:hover { color: var(--accent-primary); }
+
+        /* Dashboard View */
+        #dashboard-view {
             text-align: center;
+        }
+
+        .dashboard-status {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .pulse-box {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
+            font-size: 0.7rem;
+            color: var(--accent-success);
+            text-transform: uppercase;
+            font-weight: 800;
+            margin-top: 20px;
         }
 
         .pulse {
@@ -165,56 +234,123 @@
             background: var(--accent-success);
             border-radius: 50%;
             box-shadow: 0 0 8px var(--accent-success);
-            animation: pulse 2s infinite;
+            animation: pulse-kf 2s infinite;
         }
 
-        @keyframes pulse {
+        @keyframes pulse-kf {
             0% { transform: scale(0.95); opacity: 0.5; }
             70% { transform: scale(1.1); opacity: 1; }
             100% { transform: scale(0.95); opacity: 0.5; }
         }
-
-        /* Success/Error States */
-        .btn.success { background: var(--accent-success); }
-        .btn.error { background: var(--accent-danger); }
-        .btn.loading { opacity: 0.8; cursor: wait; }
-
-        input, textarea {
-            outline: none;
-            font-family: inherit;
-        }
-
-        textarea::-webkit-scrollbar {
-            width: 4px;
-        }
-        textarea::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-        }
-
     </style>
 </head>
 <body>
-    <div class="glass-container">
-        <div class="header">
-            <img src="icons/icon48.png" alt="Blostem">
-            <span class="title">Blostem AI</span>
-        </div>
-
-        <div class="view-section">
-            <div class="status">
-                Your AI Outreach and Intelligence Assistant is active. Access your full pipeline via the dashboard.
+    <div class="auth-card">
+        <!-- Login Mode -->
+        <div id="login-view">
+            <div class="auth-header">
+                <div class="logo-box">
+                    <img src="icons/icon48.png" alt="Blostem" class="auth-logo">
+                </div>
+                <h1>Welcome Back</h1>
+                <p class="auth-subtitle">Intelligence-driven sales automation</p>
             </div>
-            <a href="https://marketing-automation-git-main-shreyhiralkansara-7751s-projects.vercel.app/#/emails" target="_blank" class="btn btn-primary">
-                Open Dashboard
-            </a>
+
+            <div id="login-alert" class="auth-alert error" style="display: none;"></div>
+
+            <form class="auth-form" id="login-form">
+                <div class="input-group">
+                    <!-- Mail Icon (Minimal SVG) -->
+                    <svg class="icon-overlay" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <input type="email" id="login-email" placeholder="Email Address" required>
+                </div>
+
+                <div class="input-group">
+                    <!-- Lock Icon (Minimal SVG) -->
+                    <svg class="icon-overlay" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <input type="password" id="login-password" placeholder="Password" required>
+                </div>
+
+                <button type="submit" id="login-btn" class="auth-submit">
+                    <span>Login Intelligence</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <div class="prototype-hint" id="prototype-btn">
+                    <span>PROTOTYPE ACCESS</span>
+                    <p>One-click auto-fill for MVP testing</p>
+                </div>
+                <button class="btn-text" id="to-register">Don't have an invite? Join Waitlist</button>
+            </div>
         </div>
 
-        <div class="footer">
-            <div class="pulse"></div>
-            Intelligence Engine Active
+        <!-- Register Mode -->
+        <div id="register-view" style="display: none;">
+            <div class="auth-header">
+                <div class="logo-box">
+                    <img src="icons/icon48.png" alt="Blostem" class="auth-logo">
+                </div>
+                <h1>Join Blostem</h1>
+                <p class="auth-subtitle">Invite-only early access</p>
+            </div>
+
+            <div id="register-alert" class="auth-alert error" style="display: none;"></div>
+
+            <form class="auth-form" id="register-form">
+                <div class="input-group">
+                    <svg class="icon-overlay" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <input type="text" id="reg-name" placeholder="Full Name" required>
+                </div>
+                <div class="input-group">
+                    <svg class="icon-overlay" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    <input type="email" id="reg-email" placeholder="Email Address" required>
+                </div>
+                <div class="input-group">
+                    <svg class="icon-overlay" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <input type="password" id="reg-password" placeholder="Password" required>
+                </div>
+                <div class="input-group">
+                    <svg class="icon-overlay" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input type="text" id="reg-invite" placeholder="Invitation Code" required>
+                </div>
+
+                <button type="submit" id="register-btn" class="auth-submit">
+                    <span>Unlock Access</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <button class="btn-text" id="to-login">Already have an account? Login</button>
+            </div>
+        </div>
+
+        <!-- Dashboard View -->
+        <div id="dashboard-view" style="display: none;">
+            <div class="auth-header">
+                <div class="logo-box">
+                    <img src="icons/icon48.png" alt="Blostem" class="auth-logo">
+                </div>
+                <h1>Assistant Active</h1>
+            </div>
+            <p class="dashboard-status">
+                Intelligence Engine is synced with your Gmail workspace.
+            </p>
+            <a href="http://localhost:5173" target="_blank" class="auth-submit" style="text-decoration: none;">
+                <span>Open Platform</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+            </a>
+            <button id="logout-btn" class="btn-text" style="margin-top: 20px;">Disconnect Session</button>
+            
+            <div class="pulse-box">
+                <div class="pulse"></div>
+                Engine Active
+            </div>
         </div>
     </div>
+
     <script src="popup.js"></script>
 </body>
 </html>

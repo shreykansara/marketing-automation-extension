@@ -23,9 +23,9 @@ def test_endpoint(url, endpoint, method="GET", payload=None):
         print(f"Connection Failed: {e}")
 
 print("--- TESTING RENDER PRODUCTION ---")
-test_endpoint(BASE_URL, "/api/companies")
+test_endpoint(BASE_URL, "/api/companies/")
 test_endpoint(BASE_URL, "/api/emails/generate", method="POST", payload={"recipient_email": "test@example.com"})
 
 print("\n--- TESTING LOCAL BACKEND (If running) ---")
-test_endpoint(LOCAL_URL, "/api/companies")
+test_endpoint(LOCAL_URL, "/api/companies/")
 test_endpoint(LOCAL_URL, "/api/emails/generate", method="POST", payload={"recipient_email": "test@example.com"})
