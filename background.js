@@ -8,13 +8,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 
   if (request.action === "saveEmail") {
-    console.log("Saving email to Blostem...", request.data);
+    console.log("Saving email to Flux...", request.data);
 
     // Retrieve token from storage before making the request
     chrome.storage.local.get("token", async ({ token }) => {
       if (!token) {
         console.error("No auth token found. User must login via popup.");
-        sendResponse({ status: "error", message: "Please login to Blostem via the extension icon first." });
+        sendResponse({ status: "error", message: "Please login to Flux via the extension icon first." });
         return;
       }
 
@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           sendResponse({ status: "success", data: data });
         })
         .catch(error => {
-          console.error("Blostem Background Error:", error);
+          console.error("Flux Background Error:", error);
           sendResponse({ status: "error", message: error.message });
         });
     });

@@ -183,15 +183,15 @@
     border-left-color: var(--flux-primary);
 }
 
-.blostem-picker-item .item-title {
+.flux-picker-item .item-title {
     font-weight: 600;
     font-size: 14px;
     margin-bottom: 2px;
 }
 
-.blostem-picker-item .item-sub {
+.flux-picker-item .item-sub {
     font-size: 12px;
-    color: var(--blostem-text-muted);
+    color: var(--flux-text-muted);
 }
 
 .flux-picker-back {

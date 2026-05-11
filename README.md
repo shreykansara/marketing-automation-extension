@@ -1,6 +1,6 @@
-# Blostem Email Ingester - Setup Instructions
+# Flux Email Ingester - Setup Instructions
 
-This browser extension allows you to save emails from Gmail directly to your Blostem Intelligence Platform.
+This browser extension allows you to save emails from Gmail directly to your Flux Intelligence Platform.
 
 ## 1. Load the Extension
 1. Open Chrome and navigate to `chrome://extensions/`.
@@ -12,8 +12,8 @@ This browser extension allows you to save emails from Gmail directly to your Blo
 
 ### 📩 Saving Emails (Read Mode)
 1. Open any email in [Gmail](https://mail.google.com).
-2. Look for the glassmorphic **🌱 Save to Blostem** button next to the email subject.
-3. Click the button to sync the conversation to your Blostem database.
+2. Look for the glassmorphic **🌱 Save to Flux** button next to the email subject.
+3. Click the button to sync the conversation to your Flux database.
 4. Once saved (checkmark ✅), the email will appear in your dashboard.
 
 ### ✨ AI Outreach Generation (Compose Mode)
@@ -25,7 +25,7 @@ This browser extension allows you to save emails from Gmail directly to your Blo
 
 ## 3. Configuration
 - The extension connects to the production backend: `https://marketing-automation-xtd2.onrender.com/api/emails/`.
-- Ensure the recipient email exists in your Blostem leads/deals for the AI Outreach generator to find context.
+- Ensure the recipient email exists in your Flux leads/deals for the AI Outreach generator to find context.
 
 ---
 *Note: This version is optimized for Gmail's current DOM structure.*

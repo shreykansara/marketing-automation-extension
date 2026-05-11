@@ -58,12 +58,12 @@ async function fetchCompanies() {
 
 function extractRecipient(composeDialog) {
     if (!composeDialog) return "";
-    console.log("Blostem: Attempting to extract recipient...");
+    console.log("Flux: Attempting to extract recipient...");
 
     // Target the specific Gmail "To" area containers
     const toArea = composeDialog.querySelector(CONFIG.selectors.toArea);
     if (!toArea) {
-        console.warn("Blostem: To area not found");
+        console.warn("Flux: To area not found");
         return "";
     }
 
@@ -72,7 +72,7 @@ function extractRecipient(composeDialog) {
     for (let el of emailEls) {
         const email = el.getAttribute('email') || el.getAttribute('data-hovercard-id');
         if (email && email.includes('@')) {
-            console.log("Blostem: Found recipient in chip:", email);
+            console.log("Flux: Found recipient in chip:", email);
             return email.trim();
         }
         // Check aria-label for "Name <email@domain.com>"
@@ -80,7 +80,7 @@ function extractRecipient(composeDialog) {
         if (aria && aria.includes('<')) {
             const match = aria.match(/<([^>]+)>/);
             if (match) {
-                console.log("Blostem: Found recipient in aria-label:", match[1]);
+                console.log("Flux: Found recipient in aria-label:", match[1]);
                 return match[1].trim();
             }
         }
@@ -93,7 +93,7 @@ function extractRecipient(composeDialog) {
         if (val.includes('@')) {
             const match = val.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
             if (match) {
-                console.log("Blostem: Found recipient in input/textbox:", match[0]);
+                console.log("Flux: Found recipient in input/textbox:", match[0]);
                 return match[0].trim();
             }
         }
@@ -142,7 +142,7 @@ function injectOutreachButton() {
 
     composeWindows.forEach(dialog => {
         const toolbar = dialog.querySelector(CONFIG.selectors.composeToolbar);
-        if (!toolbar || dialog.querySelector('.blostem-ai-btn')) return;
+        if (!toolbar || dialog.querySelector('.flux-ai-btn')) return;
 
         const btn = document.createElement('button');
         btn.innerHTML = 'Generate AI Draft';
@@ -226,7 +226,7 @@ async function injectCompanyPicker() {
 
     composeWindows.forEach(async dialog => {
         const toArea = dialog.querySelector(CONFIG.selectors.toArea);
-        if (!toArea || dialog.querySelector('.blostem-picker-trigger')) return;
+        if (!toArea || dialog.querySelector('.flux-picker-trigger')) return;
 
         const trigger = document.createElement('div');
         trigger.className = 'flux-picker-trigger';
@@ -265,11 +265,11 @@ function showPickerOverlay(x, y, dialog) {
         overlay.innerHTML = '';
 
         const header = document.createElement('div');
-        header.className = 'blostem-picker-header';
+        header.className = 'flux-picker-header';
 
         if (view === 'emails' && selectedCompany) {
             const back = document.createElement('div');
-            back.className = 'blostem-picker-back';
+            back.className = 'flux-picker-back';
             back.innerHTML = '← Back';
             back.onclick = () => render('companies');
             header.appendChild(back);
@@ -286,7 +286,7 @@ function showPickerOverlay(x, y, dialog) {
 
         if (view === 'companies') {
             const searchBox = document.createElement('div');
-            searchBox.className = 'blostem-picker-search';
+            searchBox.className = 'flux-picker-search';
             const input = document.createElement('input');
             input.placeholder = 'Search companies...';
             input.value = filter;
@@ -296,14 +296,14 @@ function showPickerOverlay(x, y, dialog) {
             setTimeout(() => input.focus(), 100);
 
             const list = document.createElement('div');
-            list.className = 'blostem-picker-list';
+            list.className = 'flux-picker-list';
 
             const companies = await fetchCompanies();
             const filtered = companies.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
 
             filtered.forEach(comp => {
                 const item = document.createElement('div');
-                item.className = 'blostem-picker-item';
+                item.className = 'flux-picker-item';
                 item.innerHTML = `<div>${comp.name}</div><div class="item-sub">${comp.emails?.length || 0} emails</div>`;
                 item.onclick = () => {
                     selectedCompany = comp;
@@ -314,11 +314,11 @@ function showPickerOverlay(x, y, dialog) {
             overlay.appendChild(list);
         } else {
             const list = document.createElement('div');
-            list.className = 'blostem-picker-list';
+            list.className = 'flux-picker-list';
 
             selectedCompany.emails.forEach(email => {
                 const item = document.createElement('div');
-                item.className = 'blostem-picker-item';
+                item.className = 'flux-picker-item';
                 item.innerHTML = `<div>${email}</div>`;
                 item.onclick = () => {
                     populateToField(dialog, email);
@@ -390,7 +390,7 @@ function populateToField(dialog, email) {
             }));
         }
     } else {
-        console.error("Blostem: Could not locate the 'To' field in the compose window.");
+        console.error("Flux: Could not locate the 'To' field in the compose window.");
     }
 }
 
@@ -404,7 +404,7 @@ function injectSaveSendButton() {
         const toolbar = dialog.querySelector(CONFIG.selectors.composeToolbar);
         const nativeSend = dialog.querySelector(CONFIG.selectors.sendButton);
 
-        if (!toolbar || !nativeSend || dialog.querySelector('.blostem-send-standalone')) return;
+        if (!toolbar || !nativeSend || dialog.querySelector('.flux-send-standalone')) return;
 
         const btn = document.createElement('button');
         btn.innerHTML = 'Save & Send';
@@ -424,7 +424,7 @@ function injectSaveSendButton() {
                 subject: dialog.querySelector(CONFIG.selectors.composeSubject)?.value || "No Subject",
                 body: dialog.querySelector(CONFIG.selectors.composeBody)?.innerText || "",
                 receiver: extractRecipient(dialog),
-                sender: "me-integration@blostem.io",
+                sender: "me-integration@flux.io",
                 timestamp: new Date().toISOString()
             };
 
@@ -489,10 +489,10 @@ function extractEmailData() {
 }
 
 /**
- * Injects the "Save to Blostem" button in Read mode
+ * Injects the "Save to Flux" button in Read mode
  */
 function injectSaveButton() {
-    if (document.getElementById('blostem-save-button')) return;
+    if (document.getElementById('flux-save-button')) return;
 
     const subjectLine = document.querySelector(CONFIG.selectors.subject);
     if (!subjectLine) return;
@@ -520,14 +520,14 @@ function injectSaveButton() {
                 btn.innerText = 'Saved!';
                 setTimeout(() => {
                     btn.classList.remove('success');
-                    btn.innerText = 'Save to Blostem';
+                    btn.innerText = 'Save to Flux';
                 }, 3000);
             } else {
                 btn.classList.add('error');
                 btn.innerText = 'Failed';
                 setTimeout(() => {
                     btn.classList.remove('error');
-                    btn.innerText = 'Save to Blostem';
+                    btn.innerText = 'Save to Flux';
                 }, 3000);
             }
         });
@@ -542,13 +542,13 @@ async function checkAuthAndInject() {
     const { token } = await chrome.storage.local.get("token");
 
     if (!token) {
-        hideBlostemUI();
+        hideFluxUI();
         injectLoginPrompt();
         return;
     }
 
     // Authenticated: Remove prompt and inject UI
-    const prompt = document.getElementById('blostem-login-prompt');
+    const prompt = document.getElementById('flux-login-prompt');
     if (prompt) prompt.remove();
 
     injectOutreachButton();
@@ -559,13 +559,13 @@ async function checkAuthAndInject() {
     }
 }
 
-function hideBlostemUI() {
-    const elements = document.querySelectorAll('.blostem-ai-btn, .blostem-picker-trigger, .blostem-send-standalone, .blostem-save-btn');
+function hideFluxUI() {
+    const elements = document.querySelectorAll('.flux-ai-btn, .flux-picker-trigger, .flux-send-standalone, .flux-save-btn');
     elements.forEach(el => el.remove());
 }
 
 function injectLoginPrompt() {
-    if (document.getElementById('blostem-login-prompt')) return;
+    if (document.getElementById('flux-login-prompt')) return;
 
     // Target the specific wrapper for the Gmail search bar
     const searchWrapper = document.querySelector('.gb_Pe');
