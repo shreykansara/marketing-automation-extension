@@ -54,8 +54,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Prototype Access (Matches Website)
     prototypeBtn.onclick = () => {
-        document.getElementById('login-email').value = "test.automation@blostem.ai";
-        document.getElementById('login-password').value = "blostem2026";
+        document.getElementById('login-email').value = "test.automation@flux.ai";
+        document.getElementById('login-password').value = "flux2026";
         prototypeBtn.style.background = 'rgba(16, 185, 129, 0.1)';
         prototypeBtn.style.borderColor = 'rgba(16, 185, 129, 0.3)';
     };
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             showAlert(loginAlert, 'Connection failed. Ensure backend is running.');
         } finally {
             submitBtn.disabled = false;
-            submitBtn.querySelector('span').innerText = 'Login Intelligence';
+            submitBtn.querySelector('span').innerText = 'Login Flux AI';
         }
     };
 

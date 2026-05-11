@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Blostem Email Ingester",
+  "name": "Flux Email Ingester",
   "version": "1.0",
-  "description": "Extracts emails from Gmail and saves them to the Blostem Intelligence Platform.",
+  "description": "Extracts emails from Gmail and saves them to the Flux Intelligence Platform.",
   "permissions": [
     "activeTab",
     "storage",
